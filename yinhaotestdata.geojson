@@ -1,0 +1,16 @@
+{
+    "geojson-marker": {
+        "type": "geojson",
+        "data": {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [155,-30]
+            },
+            "properties": {
+                "title": "Mapbox DC",
+                "marker-symbol": "monument"
+            }
+        }
+    }
+}
