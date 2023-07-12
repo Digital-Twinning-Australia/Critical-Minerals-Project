@@ -1,16 +1,115 @@
 {
-    "geojson-marker": {
-        "type": "geojson",
-        "data": {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [155,-30]
-            },
-            "properties": {
-                "title": "Mapbox DC",
-                "marker-symbol": "monument"
-            }
-        }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 1",
+        "color": "#FF0000"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.486052, 37.830348]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 2",
+        "color": "#00FF00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4861, 37.830802]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 3",
+        "color": "#0000FF"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.486958, 37.832158]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 4",
+        "color": "#FF00FF"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.487516, 37.831683]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 5",
+        "color": "#00FFFF"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.488031, 37.832158]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 6",
+        "color": "#FFFF00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.488889, 37.832971]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 7",
+        "color": "#FF0000"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.489876, 37.832632]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 8",
+        "color": "#00FF00"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.490434, 37.832937]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 9",
+        "color": "#0000FF"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.49125, 37.832429]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Data Point 10",
+        "color": "#FF00FF"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.491636, 37.832564]
+      }
     }
+  ]
 }
