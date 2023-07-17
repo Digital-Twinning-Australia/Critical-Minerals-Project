@@ -85,6 +85,9 @@
         antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
 
+   
+    map.addControl(new mapboxgl.ScaleControl());  // Add a scale control to the map
+
 
      /* add a 3D model as test
     Use a custom style layer with three.js to add a 3D model to the map.
