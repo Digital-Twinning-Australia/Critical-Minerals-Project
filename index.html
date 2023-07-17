@@ -13,6 +13,11 @@
 </head>
 
 <body>
+<script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+
+<nav id="menu"></nav>
+<div id="map"></div>
 
 <style>
     #menu {
@@ -58,35 +63,156 @@
     }
 </style>
 
-<nav id="menu"></nav>
-<div id="map"></div>
+
  
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoieWluaGFvLWR0YSIsImEiOiJjbGp4d3k0eHAxenRiM3NtaTkxYXIxNngzIn0.UNpYLjZs3rvXN8UVYUShTg';
     const map = new mapboxgl.Map({
         container: 'map', // container ID
+        
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/mapbox/satellite-v9', // style URL
+        
+        // style: 'mapbox://styles/mapbox/light-v11',
+        // style: 'mapbox://styles/mapbox/outdoors-v12',
+        // style: 'mapbox://styles/mapbox/dark-v11',
+        style:"mapbox://styles/mapbox/satellite-streets-v12", // wired! 3D model can be shown on this map style
+        // style: 'mapbox://styles/mapbox/satellite-v9', // 3D model cannot show on this map style
+
+
         projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
         zoom: 4, // starting zoom
-        center: [135, -30] // // starting center in [lng, lat]
+        center: [135, -30], // // starting center in [lng, lat]
+        // pitch: 60,
+        antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
+
+
+     /* add a 3D model as test
+    Use a custom style layer with three.js to add a 3D model to the map.
+    An alternative example using threebox to abstract three.js is available at Add a 3D model with threebox.
+    Reference: https://docs.mapbox.com/mapbox-gl-js/example/add-3d-model/
+    */
+   
+    // parameters to ensure the model is georeferenced correctly on the map
+    const modelOrigin = [138.599996, -34.928660];
+    const modelAltitude = 0;
+    const modelRotate = [Math.PI / 2, 0, 0];
     
+    const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+        modelOrigin,
+        modelAltitude
+    );
+    
+    // transformation parameters to position, rotate and scale the 3D model onto the map
+    const modelTransform = {
+        translateX: modelAsMercatorCoordinate.x,
+        translateY: modelAsMercatorCoordinate.y,
+        translateZ: modelAsMercatorCoordinate.z,
+        rotateX: modelRotate[0],
+        rotateY: modelRotate[1],
+        rotateZ: modelRotate[2],
+        /* Since the 3D model is in real world meters, a scale transform needs to be
+        * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+        */
+        scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+    };
+    
+    const THREE = window.THREE;
+    
+    // configuration of the custom layer for a 3D model per the CustomLayerInterface
+    const customLayer = {
+        id: '3d-model',
+        type: 'custom',
+        renderingMode: '3d',
+        onAdd: function (map, gl) {
+            this.camera = new THREE.Camera();
+            this.scene = new THREE.Scene();
+            
+            // create two three.js lights to illuminate the model
+            const directionalLight = new THREE.DirectionalLight(0xffffff);
+            directionalLight.position.set(0, -70, 100).normalize();
+            this.scene.add(directionalLight);
+            
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff);
+            directionalLight2.position.set(0, 70, 100).normalize();
+            this.scene.add(directionalLight2);
+            
+            // use the three.js GLTF loader to add the 3D model to the three.js scene
+            const loader = new THREE.GLTFLoader();
+            loader.load(
+                'https://docs.mapbox.com/mapbox-gl-js/assets/34M_17/34M_17.gltf',
+                (gltf) => {
+                    this.scene.add(gltf.scene);
+                }
+            );
+            this.map = map;
+    
+            // use the Mapbox GL JS map canvas for three.js
+            this.renderer = new THREE.WebGLRenderer({
+                canvas: map.getCanvas(),
+                context: gl,
+                antialias: true
+            }); 
+    
+            this.renderer.autoClear = false;
+        },
+        render: function (gl, matrix) {
+            const rotationX = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(1, 0, 0),
+                modelTransform.rotateX
+            );
+            const rotationY = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(0, 1, 0),
+                modelTransform.rotateY
+            );
+            const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                new THREE.Vector3(0, 0, 1),
+                modelTransform.rotateZ
+            );
+    
+            const m = new THREE.Matrix4().fromArray(matrix);
+            const l = new THREE.Matrix4()
+                .makeTranslation(
+                    modelTransform.translateX,
+                    modelTransform.translateY,
+                    modelTransform.translateZ
+                )
+                .scale(
+                    new THREE.Vector3(
+                        modelTransform.scale,
+                        -modelTransform.scale,
+                        modelTransform.scale
+                    )
+                )
+                .multiply(rotationX)
+                .multiply(rotationY)
+                .multiply(rotationZ);
+    
+            this.camera.projectionMatrix = m.multiply(l);
+            this.renderer.resetState();
+            this.renderer.render(this.scene, this.camera);
+            this.map.triggerRepaint();
+        }
+    };
 
 
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
+        
+        map.addLayer(customLayer, 'waterway-label'); // Add a 3D model
+        
+        
 
-        // Add 3D terrain to a map
-        map.addSource('mapbox-dem', {
-            'type': 'raster-dem',
-            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-            'tileSize': 512,
-            'maxzoom': 14
-        });
-        // add the DEM source as a terrain layer with exaggerated height
-        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
-
+        // // Add 3D terrain to a map
+        // map.addSource('mapbox-dem', {
+        //     'type': 'raster-dem',
+        //     'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        //     'tileSize': 512,
+        //     'maxzoom': 14
+        // });
+        
+        // // // add the DEM source as a terrain layer with exaggerated height
+        // map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
     });
     
 
@@ -131,7 +257,7 @@
                         ],
                         base: 2
                         },
-                        'circle-color': 'rgba(0, 0, 255, 0.3)'
+                        'circle-color': 'rgba(255, 0, 0, 0.3)'
                     }
                 }); 
                 
@@ -192,7 +318,6 @@
 
         })
     });
-
 
 
     map.on('load', () => {
@@ -379,9 +504,6 @@
         });
 
 
-        
-
-
         // DTA LOGO
         map.loadImage(
             'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/May%2022%20logo.JPG',
@@ -418,11 +540,6 @@
             });
             }
         );
-
-
-            
-
-        
     });
 
 
@@ -483,30 +600,6 @@
 
 
 
-
-
-        // // Add a listener for the click event.
-        // map.on('click', (e) => {
-        // // Calculate the radius of the circle.
-        //     const radius = 50000;
-
-        //     // Create a new circle object.
-        //     const circle = new mapboxgl.Circle({
-        //         center: e.lngLat,
-        //         radius,
-        //         color: 'red',
-        //         fillOpacity: 0.5,
-        //     });
-
-        //     // Add the circle to the map.
-        //     circle.addTo(map);
-
-        //     // Add some cool animations to the circle.
-        //     circle.setAnimation('pulse', {
-        //         duration: 2000,
-        //         repeat: Infinity,
-        // });
-        // });
     });
 
 </script>
