@@ -108,6 +108,60 @@
                     }
                 });
             }else {
+                
+                map.addLayer({
+                    id: 'circle3',
+                    type: 'circle',
+                    source: {
+                        type: 'geojson',
+                        data: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [lngLat.lng, lngLat.lat]
+                        }
+                        }
+                    },
+                    paint: {
+                        'circle-radius': {
+                        type: 'exponential',
+                        stops: [
+                            [0, 0],
+                            [17, 300000] // Radius of 300km (in meters) at zoom level 16
+                        ],
+                        base: 2
+                        },
+                        'circle-color': 'rgba(0, 0, 255, 0.3)'
+                    }
+                }); 
+                
+                map.addLayer({
+                    id: 'circle2',
+                    type: 'circle',
+                    source: {
+                        type: 'geojson',
+                        data: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [lngLat.lng, lngLat.lat]
+                        }
+                        }
+                    },
+                    paint: {
+                        'circle-radius': {
+                        type: 'exponential',
+                        stops: [
+                            [0, 0],
+                            [17, 200000] // Radius of 200km (in meters) at zoom level 16
+                        ],
+                        base: 2
+                        },
+                        'circle-color': 'rgba(0, 255, 0, 0.3)'
+                    }
+                });
+                
+                
                 // Create a new circle layer
                 map.addLayer({
                 id: 'circle',
@@ -127,64 +181,12 @@
                     type: 'exponential',
                     stops: [
                         [0, 0],
-                        [16, 100000] // Radius of 100km (in meters) at zoom level 16
+                        [17, 100000] // Radius of 100km (in meters) at zoom level 16
                     ],
                     base: 2
                     },
                     'circle-color': 'rgba(0, 0, 255, 0.5)'
                 }
-                });
-
-                map.addLayer({
-                    id: 'circle2',
-                    type: 'circle',
-                    source: {
-                        type: 'geojson',
-                        data: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lngLat.lng, lngLat.lat]
-                        }
-                        }
-                    },
-                    paint: {
-                        'circle-radius': {
-                        type: 'exponential',
-                        stops: [
-                            [0, 0],
-                            [16, 200000] // Radius of 200km (in meters) at zoom level 16
-                        ],
-                        base: 2
-                        },
-                        'circle-color': 'rgba(255, 0, 0, 0.5)'
-                    }
-                });
-
-                map.addLayer({
-                    id: 'circle3',
-                    type: 'circle',
-                    source: {
-                        type: 'geojson',
-                        data: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lngLat.lng, lngLat.lat]
-                        }
-                        }
-                    },
-                    paint: {
-                        'circle-radius': {
-                        type: 'exponential',
-                        stops: [
-                            [0, 0],
-                            [16, 300000] // Radius of 300km (in meters) at zoom level 16
-                        ],
-                        base: 2
-                        },
-                        'circle-color': 'rgba(0, 255, 0, 0.5)'
-                    }
                 });
             }
 
