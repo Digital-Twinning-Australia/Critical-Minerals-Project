@@ -63,7 +63,6 @@
     }
 </style>
 
-
  
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoieWluaGFvLWR0YSIsImEiOiJjbGp4d3k0eHAxenRiM3NtaTkxYXIxNngzIn0.UNpYLjZs3rvXN8UVYUShTg';
@@ -360,7 +359,7 @@
 
         map.addSource('diesel', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/converted%20(1).geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/dieseloutput.geojson'
         });
 
         map.loadImage(
@@ -388,7 +387,7 @@
 
         map.addSource('primschool', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/primschool.geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/primschool.geojson'
         });
 
         map.loadImage(
@@ -416,7 +415,7 @@
 
         map.addSource('publichospital', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/Publichospitals.geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/Publichospitals.geojson'
         });
 
         map.loadImage(
@@ -444,7 +443,7 @@
         // polygon shape
         map.addSource('irrigationarea', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/IrrigationAreas_GDA2020.geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/IrrigationAreas_GDA2020.geojson'
         });
 
         map.addLayer({
@@ -485,7 +484,7 @@
 
         map.addSource('road', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/StateMaintainedRoads.geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/StateMaintainedRoads.geojson'
         });
         
         map.addLayer({
@@ -506,7 +505,7 @@
 
         // DTA LOGO
         map.loadImage(
-            'https://raw.githubusercontent.com/YinhaoDeng/geojson-test-repo/main/May%2022%20logo.JPG',
+            'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/resource/DTA%20LOGO.JPG',
             (error, image) => {
             if (error) throw error;
             
