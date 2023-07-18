@@ -16,9 +16,15 @@
 <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 
-<nav id="menu"></nav>
-<div id="map"></div>
+<!--style for popup-->
+<style>
+    .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    }
+</style>
 
+<!--style for filter menu-->
 <style>
     #menu {
     background: #fff;
@@ -62,6 +68,9 @@
     background: #3074a4;
     }
 </style>
+
+<nav id="menu"></nav>
+<div id="map"></div>
 
  
 <script>
@@ -202,8 +211,6 @@
         map.setFog({}); // Set the default atmosphere style
         
         map.addLayer(customLayer, 'waterway-label'); // Add a 3D model
-        
-        
 
         // // Add 3D terrain to a map
         // map.addSource('mapbox-dem', {
@@ -220,7 +227,8 @@
 
 
 
-    // Add a click event listener to the map
+    // 3 Circles event listener
+    /*
     map.on('click', function(e) {
         // Get the clicked coordinates
         var lngLat = e.lngLat;
@@ -320,6 +328,44 @@
 
         })
     });
+    */
+
+    // When a click event occurs on a feature in the places layer, open a popup at the
+    // location of the feature, with description HTML from its properties.
+    map.on('click', 'diesel', (e) => {
+        
+        const coordinates = e.features[0].geometry.coordinates.slice(); // Copy coordinates array.
+
+        const title = e.features[0].properties.title;
+        const marker_symbol = e.features[0].properties.marker_symbol;
+        const address = e.features[0].properties.address;
+        const station = e.features[0].properties.station;
+
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(title)
+            .addTo(map);
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'diesel', () => {
+            map.getCanvas().style.cursor = 'pointer';
+            
+        });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'diesel', () => {
+        map.getCanvas().style.cursor = '';
+        alert("Hello! I am an alert box!!");
+    });
 
 
     map.on('load', () => {
@@ -328,6 +374,7 @@
             data: 'https://raw.githubusercontent.com/rowanhogan/australian-states/master/states.geojson'
         });
         
+        // Australian state borders
         map.addLayer({
             'id': 'state-border-layer',
             'type': 'line',
@@ -343,29 +390,13 @@
             }
         });
 
-
-
-        map.addLayer({   // add a symbol layer
-            'id': 'earthquakes-layer',
-            'type': 'symbol',
-            'source': 'earthquakes',
-            'layout': {
-                'visibility': 'visible', // Make the layer visible by default.
-                'icon-image': 'hospital',
-                'icon-allow-overlap': true
-            },
-            'paint': {
-            }
-        });
-
-        
-
-        map.addSource('diesel', {
+        // Diesel Part
+        map.addSource('diesel', { //load diesel data
             type: 'geojson',
             data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/dieseloutput.geojson'
         });
 
-        map.loadImage(
+        map.loadImage( //load diesel icon
             'https://cdn4.iconfinder.com/data/icons/nuuline-fill-car-parts-service-repair/150/service_repair_automotive-46-512.png',
             (error, image) => {
             if (error) throw error;
@@ -373,7 +404,7 @@
             // Add the image to the map style.
             map.addImage('fuel-icon', image);
         });
-        
+    
         map.addLayer({
             'id': 'diesel-layer',
             'type': 'symbol',
@@ -386,14 +417,13 @@
             });
         
 
-
-
+        // Primary School Part
         map.addSource('primschool', {
             type: 'geojson',
             data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/primschool.geojson'
         });
 
-        map.loadImage(
+        map.loadImage( //load primary school icon
             'https://cdn2.iconfinder.com/data/icons/flat-pack-1/64/Education-1024.png',
             (error, image) => {
             if (error) throw error;
@@ -402,7 +432,6 @@
             map.addImage('school-icon', image);
         });
 
-        // add yellow dots
         map.addLayer({
             'id': 'primschool-layer',
             'type': 'symbol',
@@ -430,7 +459,6 @@
             map.addImage('hospital-icon', image);
         });
 
-        // add black dots
         map.addLayer({
             'id': 'publichospital-layer',
             'type': 'symbol',
@@ -463,10 +491,10 @@
         });
 
      
-
+        // railway part
         map.addSource('railway', {
             type: 'geojson',
-            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/railoutput.geojson'
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/railoutput.geojson'
         });
 
         map.addLayer({
@@ -485,6 +513,7 @@
         });
 
 
+        // road part
         map.addSource('road', {
             type: 'geojson',
             data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/StateMaintainedRoads.geojson'
