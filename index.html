@@ -67,10 +67,45 @@
     #menu a.active:hover {
     background: #3074a4;
     }
+
+
+    /* CSS code to beautify the checkbox */
+    .checkbox-container {
+        background: #3887be;
+        position: absolute;
+        z-index: 1;
+        bottom: 25px;
+        right: 10px;
+    }
+
+    .checkbox-label {
+      margin-left: 8px;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .custom-checkbox:checked {
+      background-color: #2196F3;
+      border-color: #2196F3;
+    }
+
+    .custom-checkbox:checked::before {
+      content: '\2713';
+      font-size: 12px;
+      color: #fff;
+      position: absolute;
+      top: 1px;
+      left: 4px;
+    }
+
 </style>
 
 <nav id="menu"></nav>
 <div id="map"></div>
+<div class="checkbox-container">
+    <label for="checkbox" class="checkbox-label">Tick to see radar circles</label>
+    <input type="checkbox" id="checkbox" class="custom-checkbox">
+</div>
 
  
 <script>
@@ -226,120 +261,173 @@
     
 
 
+    ///////////////////     3 Circles and Check Box Section        ////////////////////////////////////////////////////////////////////////////////////////
+    var checkbox = document.getElementById("checkbox");
+    var isCheckboxChecked = false;
 
-    // 3 Circles event listener
-    /*
-    map.on('click', function(e) {
-        // Get the clicked coordinates
+    // Event listener for the checkbox
+    checkbox.addEventListener('change', function() {
+        isCheckboxChecked = checkbox.checked;
+
+        if (isCheckboxChecked) {
+            // Add the 'click' event listener
+            map.on('click', createCircles);
+        } else {
+            // Remove the 'click' event listener
+            map.off('click', createCircles);
+
+            // Remove the circles
+            removeCircles();
+        }
+    });
+
+    function createCircles(e) {
         var lngLat = e.lngLat;
 
-        // Check if the circle layer already exists
-        ['circle', 'circle2', 'circle3'].forEach(function(id) {
-            if (map.getLayer(id)) {
-                map.getSource(id).setData({
+        removeCircles();
+
+        // Create new circle layers
+        map.addLayer({
+            id: 'circle3',
+            type: 'circle',
+            source: {
+                type: 'geojson',
+                data: {
                     type: 'Feature',
                     geometry: {
                         type: 'Point',
                         coordinates: [lngLat.lng, lngLat.lat]
                     }
-                });
-            }else {
-                
-                map.addLayer({
-                    id: 'circle3',
-                    type: 'circle',
-                    source: {
-                        type: 'geojson',
-                        data: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lngLat.lng, lngLat.lat]
-                        }
-                        }
-                    },
-                    paint: {
-                        'circle-radius': {
-                        type: 'exponential',
-                        stops: [
-                            [0, 0],
-                            [17, 300000] // Radius of 300km (in meters) at zoom level 16
-                        ],
-                        base: 2
-                        },
-                        'circle-color': 'rgba(255, 0, 0, 0.3)'
-                    }
-                }); 
-                
-                map.addLayer({
-                    id: 'circle2',
-                    type: 'circle',
-                    source: {
-                        type: 'geojson',
-                        data: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [lngLat.lng, lngLat.lat]
-                        }
-                        }
-                    },
-                    paint: {
-                        'circle-radius': {
-                        type: 'exponential',
-                        stops: [
-                            [0, 0],
-                            [17, 200000] // Radius of 200km (in meters) at zoom level 16
-                        ],
-                        base: 2
-                        },
-                        'circle-color': 'rgba(0, 255, 0, 0.3)'
-                    }
-                });
-                
-                
-                // Create a new circle layer
-                map.addLayer({
-                id: 'circle',
-                type: 'circle',
-                source: {
-                    type: 'geojson',
-                    data: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [lngLat.lng, lngLat.lat]
-                    }
-                    }
+                }
+            },
+            paint: {
+                'circle-radius': {
+                    type: 'exponential',
+                    stops: [
+                        [0, 0],
+                        [17, 300000] // Radius of 300km (in meters) at zoom level 16
+                    ],
+                    base: 2
                 },
-                paint: {
-                    'circle-radius': {
+                'circle-color': 'rgba(255, 0, 0, 0.3)'
+            }
+        });
+
+        map.addLayer({
+            id: 'circle2',
+            type: 'circle',
+            source: {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [lngLat.lng, lngLat.lat]
+                    }
+                }
+            },
+            paint: {
+                'circle-radius': {
+                    type: 'exponential',
+                    stops: [
+                        [0, 0],
+                        [17, 200000] // Radius of 200km (in meters) at zoom level 16
+                    ],
+                    base: 2
+                },
+                'circle-color': 'rgba(0, 255, 0, 0.3)'
+            }
+        });
+
+        map.addLayer({
+            id: 'circle',
+            type: 'circle',
+            source: {
+                type: 'geojson',
+                data: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [lngLat.lng, lngLat.lat]
+                    }
+                }
+            },
+            paint: {
+                'circle-radius': {
                     type: 'exponential',
                     stops: [
                         [0, 0],
                         [17, 100000] // Radius of 100km (in meters) at zoom level 16
                     ],
                     base: 2
-                    },
-                    'circle-color': 'rgba(0, 0, 255, 0.5)'
-                }
-                });
+                },
+                'circle-color': 'rgba(0, 0, 255, 0.5)'
             }
+        });
+    }
 
-        })
-    });
-    */
+    function removeCircles() {
+        // Remove the circles
+        map.removeLayer('circle');
+        map.removeLayer('circle2');
+        map.removeLayer('circle3');
+
+        // Remove the circle sources
+        if (map.getSource('circle')) {
+            map.removeSource('circle');
+        }
+        if (map.getSource('circle2')) {
+            map.removeSource('circle2');
+        }
+        if (map.getSource('circle3')) {
+            map.removeSource('circle3');
+        }
+    }
+
+
+     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // When a click event occurs on a feature in the places layer, open a popup at the
     // location of the feature, with description HTML from its properties.
-    map.on('click', 'diesel', (e) => {
-        
-        const coordinates = e.features[0].geometry.coordinates.slice(); // Copy coordinates array.
-
+    map.on('click', 'diesel-layer', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
         const title = e.features[0].properties.title;
-        const marker_symbol = e.features[0].properties.marker_symbol;
-        const address = e.features[0].properties.address;
-        const station = e.features[0].properties.station;
+        const address = e.features[0].properties.Address;
+        const station = e.features[0].properties.Station;
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        new mapboxgl.Popup()
+            .setLngLat(coordinates)
+            .setHTML(`
+            <h3>${title}</h3>
+            <p><strong>Address:</strong> ${address}</p>
+            <p><strong>Station:</strong> ${station}</p>
+            `)
+            .addTo(map);
+    });
+
+    map.on('mouseenter', 'diesel-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'diesel-layer', () => {
+        map.getCanvas().style.cursor = '';
+    });
+
+
+
+
+    map.on('click', 'publichospital-layer', (e) => {
+        const coordinates = e.features[0].geometry.coordinates.slice();
+        const title = e.features[0].properties.Hospital;
+        const type = e.features[0].properties.Type;
+        const address = e.features[0].properties.Address;
 
 
         // Ensure that if the map is zoomed out such that multiple
@@ -351,21 +439,28 @@
 
         new mapboxgl.Popup()
             .setLngLat(coordinates)
-            .setHTML(title)
+            .setHTML(`
+            <h3>${title}</h3>
+            <p><strong>Type:</strong> ${type}</p>
+            <p><strong>Address:</strong> ${address}</p>
+            `)
             .addTo(map);
     });
 
-    // Change the cursor to a pointer when the mouse is over the places layer.
-    map.on('mouseenter', 'diesel', () => {
-            map.getCanvas().style.cursor = 'pointer';
-            
-        });
-
-    // Change it back to a pointer when it leaves.
-    map.on('mouseleave', 'diesel', () => {
-        map.getCanvas().style.cursor = '';
-        alert("Hello! I am an alert box!!");
+    map.on('mouseenter', 'publichospital-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
     });
+
+    map.on('mouseleave', 'publichospital-layer', () => {
+        map.getCanvas().style.cursor = '';
+    });
+
+
+
+
+
+
+
 
 
     map.on('load', () => {
