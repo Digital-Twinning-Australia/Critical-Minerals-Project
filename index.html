@@ -15,6 +15,7 @@
 <body>
 <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
 <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script> <!-- to compute the centroid of the polygon for popup coordination-->>
 
 <!--style for popup-->
 <style>
@@ -247,16 +248,16 @@
         
         map.addLayer(customLayer, 'waterway-label'); // Add a 3D model
 
-        // // Add 3D terrain to a map
-        // map.addSource('mapbox-dem', {
-        //     'type': 'raster-dem',
-        //     'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
-        //     'tileSize': 512,
-        //     'maxzoom': 14
-        // });
+        // Add 3D terrain to a map
+        map.addSource('mapbox-dem', {
+            'type': 'raster-dem',
+            'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+            'tileSize': 512,
+            'maxzoom': 14
+        });
         
-        // // // add the DEM source as a terrain layer with exaggerated height
-        // map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+        // // add the DEM source as a terrain layer with exaggerated height
+        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.2 });
     });
     
 
@@ -419,6 +420,60 @@
     map.on('mouseleave', 'diesel-layer', () => {
         map.getCanvas().style.cursor = '';
     });
+
+
+
+    map.on('click', 'biodiversity-layer', (e) => {
+    const geometry = e.features[0].geometry;
+    
+    // Compute the centroid of the polygon.
+    const centroid = turf.centroid(geometry);
+    const coordinates = centroid.geometry.coordinates;
+
+    const reserve_name = e.features[0].properties.RESNAME; // Adjusted to match your data's properties
+
+    new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`
+        <h3>${reserve_name}</h3>
+        `) // Removed other properties as they don't exist in the provided snippet
+        .addTo(map);
+    });
+
+    map.on('mouseenter', 'biodiversity-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'biodiversity-layer', () => {
+        map.getCanvas().style.cursor = '';
+    });
+
+
+    map.on('click', 'aboriginalland-layer', (e) => {
+    const geometry = e.features[0].geometry;
+    
+    // Compute the centroid of the polygon.
+    const centroid = turf.centroid(geometry);
+    const coordinates = centroid.geometry.coordinates;
+
+    const reserve_name = e.features[0].properties.LOCALITY; // Adjusted to match your data's properties
+
+    new mapboxgl.Popup()
+        .setLngLat(coordinates)
+        .setHTML(`
+        <h3>${reserve_name}</h3>
+        `) // Removed other properties as they don't exist in the provided snippet
+        .addTo(map);
+    });
+
+    map.on('mouseenter', 'aboriginalland-layer', () => {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'aboriginalland-layer', () => {
+        map.getCanvas().style.cursor = '';
+    });
+
 
 
 
@@ -585,6 +640,66 @@
             }
         });
 
+
+         // polygon shape
+        map.addSource('biodiversity', {
+            type: 'geojson',
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/CONSERVATION_NpwsaReserves_GDA2020.geojson'
+        });
+
+        map.addLayer({
+            'id': 'biodiversity-layer',
+            'type': 'fill',
+            'source': 'biodiversity',
+            'layout': {
+                'visibility': 'visible' // Make the layer visible by default.
+            },
+            'paint': {
+                'fill-color': '#34eb49', // green color fill
+                'fill-opacity': 0.6
+            }
+        });
+
+
+        // polygon shape
+        map.addSource('aboriginalland', {
+            type: 'geojson',
+            data: 'https://raw.githubusercontent.com/Digital-Twinning-Australia/Critical-Minerals-Project/main/data/ADMIN_AboriginalLands.geojson'
+        });
+
+        map.addLayer({
+            'id': 'aboriginalland-layer',
+            'type': 'fill',
+            'source': 'aboriginalland',
+            'layout': {
+                'visibility': 'visible' // Make the layer visible by default.
+            },
+            'paint': {
+                'fill-color': '#99390f', // brown color fill
+                'fill-opacity': 0.6
+            }
+        });
+
+
+        // polygon shape
+         map.addSource('ironsoil', {
+            type: 'geojson',
+            // data: 'https://drive.google.com/uc?export=download&id=1ge10L9kzAKfS7gOgPJ_TfJJkva1Gnlw7'
+        });
+
+        map.addLayer({
+            'id': 'ironsoil-layer',
+            'type': 'fill',
+            'source': 'ironsoil',
+            'layout': {
+                'visibility': 'visible' // Make the layer visible by default.
+            },
+            'paint': {
+                'fill-color': '#eb34eb', // 
+                'fill-opacity': 0.6
+            }
+        });
+
      
         // railway part
         map.addSource('railway', {
@@ -679,7 +794,7 @@
         // }
     
         // Enumerate ids of the layers.
-        const toggleableLayerIds = ['diesel-layer', 'primschool-layer', 'publichospital-layer', 'irrigationarea-layer', 'railway-line-layer', 'road-line-layer'];
+        const toggleableLayerIds = ['diesel-layer', 'primschool-layer', 'publichospital-layer', 'irrigationarea-layer', 'biodiversity-layer', 'aboriginalland-layer','ironsoil-layer','railway-line-layer', 'road-line-layer'];
         
         // Set up the corresponding toggle button for each layer.
         for (const id of toggleableLayerIds) {
